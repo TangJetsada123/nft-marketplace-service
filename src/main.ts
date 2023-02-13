@@ -13,6 +13,7 @@ async function bootstrap() {
   app.setBaseViewsDir(path.resolve(__dirname, './assets/email/template'));
   app.setViewEngine('hbs');
   app.useGlobalPipes(new ValidationPipe());
+  app.enableCors()
   const config = new DocumentBuilder()
     .setTitle('Marketplace API')
     .setDescription(' Marketplace API description')
