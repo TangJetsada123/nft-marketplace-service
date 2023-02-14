@@ -69,7 +69,8 @@ export class AuthService {
     const address  = this.Web3.eth.accounts.recover("hello",userInfo.signature)
     return {
       accessToken: this.jwtService.sign({
-          sub:  address
+          sub:  address,
+          sig: userInfo.signature
       })
     }
   }
