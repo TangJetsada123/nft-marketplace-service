@@ -76,7 +76,7 @@ export class UserController {
 
   @Get('info/:address')
   getInfoByAddress(@Param('address') address: string) {
-    return this.userService.findByAddress(address);
+    return this.userService.findAddressOrCreate(address);
   }
 
   @Get('/:id')
