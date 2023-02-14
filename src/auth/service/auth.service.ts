@@ -4,13 +4,14 @@ import { signatureDto } from '../dto/signature.dto';
 import Web3 from 'web3';
 import bcrypt from 'bcryptjs';
 import { AdminData } from '../../admin/admin.schema';
-import { UserData} from '../../user/schema/user.schema';
+import { UserData } from '../../user/schema/user.schema';
 import { TokenDto } from '../dto/token.dto';
 import { Role } from '../../components/enum';
 import { createUserDto, signatureInfo } from '../dto/auth.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SignatureData, SignatureDocument } from '../schema/signature.schema';
+import { access } from 'fs';
 
 @Injectable()
 export class AuthService {
@@ -20,22 +21,24 @@ export class AuthService {
     private jwtService: JwtService) {
     this.Web3 = new Web3();
   }
-  
-  createUser(password: string){
-      const wallet = this.Web3.eth.accounts.create()
-      const userAddress = wallet.address
-      const  userPriv = wallet.privateKey
-      const data = {
-        address: userAddress,
-        privateKey: userPriv,
-        password: password
-      }
-      return this.signatureSchema.create(data)
+
+  createUser(password: string) {
+    const wallet = this.Web3.eth.accounts.create()
+    const userAddress = wallet.address
+    const userPriv = wallet.privateKey
+    const signature = this.Web3.eth.accounts.sign("hello",userPriv)
+    console.log(signature)
+    const data = {
+      address: userAddress,
+      privateKey: userPriv,
+      password: password,
+      signature: signature.signature
+    }
+    return this.signatureSchema.create(data)
   }
 
-  async findAddress(password: createUserDto){
-      console.log(password)
-      return this.signatureSchema.findOne(password)
+  async findAddress(password: createUserDto) {
+    return this.signatureSchema.findOne(password)
   }
 
   async recoverAddress(signature: signatureDto) {
@@ -62,11 +65,12 @@ export class AuthService {
     return this.jwtService.verify<{ token: TokenDto }>(token);
   }
 
-  generateTokenSignature(userInfo: signatureInfo){
+  generateTokenSignature(userInfo: signatureInfo) {
+    const address  = this.Web3.eth.accounts.recover("hello",userInfo.signature)
     return {
-          address: userInfo.address,
-          privateKey: userInfo.privateKey,
-          signature: userInfo.signature
+      accessToken: this.jwtService.sign({
+          sub:  address
+      })
     }
   }
 }

@@ -44,7 +44,6 @@ export class AuthController {
   async findSignature(@Body() password: createUserDto){
     console.log(password)
     const userInfo = await this.authService.findAddress(password)
-    console.log(userInfo)
     if(!userInfo){
       throw new UnauthorizedException(
         'User not found or user has already banned  '
