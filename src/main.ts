@@ -13,7 +13,21 @@ async function bootstrap() {
   app.setBaseViewsDir(path.resolve(__dirname, './assets/email/template'));
   app.setViewEngine('hbs');
   app.useGlobalPipes(new ValidationPipe());
-  app.enableCors()
+  var whitelist = ['https://website.com', 'https://www.website.com'];
+  app.enableCors({
+    origin: function (origin, callback) {
+      if (whitelist.indexOf(origin) !== -1) {
+        console.log("allowed cors for:", origin)
+        callback(null, true)
+      } else {
+        console.log("blocked cors for:", origin)
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
+    allowedHeaders: 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe',
+    methods: "GET,PUT,POST,DELETE,UPDATE,OPTIONS",
+    credentials: true,
+  });
   const config = new DocumentBuilder()
     .setTitle('Marketplace API')
     .setDescription(' Marketplace API description')
@@ -32,7 +46,7 @@ async function bootstrap() {
   app.setGlobalPrefix(globalPrefix);
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup(globalPrefix, app, document);
-  const port =  process.env.PORT || 8000;
+  const port = process.env.PORT || 8000;
   await app.listen(port);
   Logger.log(`:rocket: Application is running on: http://localhost:${port}`);
 }
