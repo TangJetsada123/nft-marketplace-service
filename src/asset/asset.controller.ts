@@ -74,15 +74,23 @@ export class AssetController {
     return emailData;
   }
 
+  @Get('/findUser/:_id')
+  async findByUserId(@Param('_id') userId:string){
+    return await this.assetService.findByUser(userId)
+  }
+
+  @Get('/findByColection/:_id')
+  async findCollectionId(@Param('_id') collectionId:string){
+    return await this.assetService.findByCollection(collectionId)
+  }
+
   @Get('/')
   async list(@Query() query: QueryDto) {
     let sortby = '';
     if (query.sort) {
       sortby = JSON.parse(query.sort);
     }
-    console.log(sortby)
     const { data, total } = await this.assetService.find(query, sortby);
-
     return {
       total,
       pagenumber: query.page ?? 1,
@@ -112,6 +120,7 @@ export class AssetController {
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: CreateAssetDto
   ) {
+    console.log(file)
     const image = await this.uploadService.upload(file);
     dto.image = image;
     dto.status_ban === false;
@@ -126,9 +135,9 @@ export class AssetController {
 
   @ApiBearerAuth('access-token')
   @Roles(Role.USER)
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard,JwtAuthGuard)
   @Put('/sell/:id')
-  sell(@Param('id') id: string, @Body() dto: SellAssetDto) {
+  async sell(@Param('id') id: string, @Body() dto: SellAssetDto) {
     const data = {
       ...dto,
       price: dto.price,
@@ -147,10 +156,11 @@ export class AssetController {
     @Body() dto: BuyAssetDto
   ) {
     const checkConfirm = dto.confirm;
+    console.log(token)
     const data = {
       sell_status: true,
       status: STATUS.OWNED,
-      user_id: token.sub,
+      user_id: token._id.toString(),
     };
     if (checkConfirm === true) {
       return await this.assetService.update(id, data);

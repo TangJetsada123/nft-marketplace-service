@@ -24,6 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload) {
+    console.log(payload)
     const admin = await this.adminService.findById(payload.sub);
     if (admin) {
       return admin;

@@ -30,14 +30,16 @@ export class UserService extends BaseService {
       return this.userModel.create({
         address: address,
         username: 'unnamed',
-        profile_url: 'http://randomcolour.com/',
+        profile_url: 'https://nft-marketplace-mybucket.s3.ap-northeast-1.amazonaws.com/file1676364349075',
+        banner_url: 'https://nft-marketplace-mybucket.s3.ap-northeast-1.amazonaws.com/file1676365627703',
         status_ban: false,
       });
     }
     return findAddress;
   }
 
-  findByAddress(address: string) {
+  async findByAddress(address: string) {
+    console.log(await this.userModel.findOne({ address }))
     return this.userModel.findOne({ address });
   }
 
@@ -64,6 +66,10 @@ export class UserService extends BaseService {
       { $set: { isVerified: true } },
       { new: true }
     );
+  }
+
+  async findAll(){
+    return this.userModel.find()
   }
 
   async listDashboard(query: DATE) {

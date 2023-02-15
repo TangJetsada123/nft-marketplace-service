@@ -17,7 +17,6 @@ import { JwtAuthGuard } from '../guard/jwt-auth.guard';
 import { AdminService } from '../../admin/admin.service';
 import { Role } from '../../components/enum';
 import { createUserDto } from '../dto/auth.dto';
-import bcrypt from 'bcryptjs';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -42,7 +41,7 @@ export class AuthController {
 
   @Post('signature')
   async findSignature(@Body() password: createUserDto){
-    console.log(password)
+    console.log("password",password)
     const userInfo = await this.authService.findAddress(password)
     if(!userInfo){
       throw new UnauthorizedException(

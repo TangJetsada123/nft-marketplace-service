@@ -102,8 +102,12 @@ export class AssetService extends BaseService {
     console.log(dto)
     return this.assetModel.create({
       ...dto,
-      user_id: new Types.ObjectId(dto.user_id),
+      user_id: dto.user_id,
     });
+  }
+
+    findTopUser() {
+    return this.assetModel.find()
   }
 
   update(id: string, dto: AssetDto): Promise<AssetData> {
@@ -119,7 +123,14 @@ export class AssetService extends BaseService {
   }
 
   findByUser(user_id: string) {
-    return this.assetModel.find({ _id: user_id }).exec();
+    console.log(user_id)
+    return this.assetModel.find({ 
+      user_id: user_id,
+    })
+  }
+
+  findByCollection(collection_id: string){
+    return this.assetModel.find({ collection_id: collection_id})
   }
 
   softDeleted(id: string) {
