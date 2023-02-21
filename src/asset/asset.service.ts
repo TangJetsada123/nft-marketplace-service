@@ -45,6 +45,10 @@ export class AssetService extends BaseService {
     if (query.status) {
       queryData.status = query.status;
     }
+
+    if (query.user_id){
+      queryData.user_id = query.user_id
+    }
     if (query.isDeleted) {
       queryData.isDeleted = true;
     }

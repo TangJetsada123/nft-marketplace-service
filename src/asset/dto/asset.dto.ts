@@ -141,6 +141,9 @@ export class QueryDto extends BaseDto {
   @ApiProperty({ required: false })
   collection_id: string;
 
+  @ApiProperty({ required: false })
+  user_id: string;
+
   @ApiProperty({ required: false, enum: STATUS })
   status: STATUS;
 
@@ -156,6 +159,7 @@ export class SellAssetDto {
 export class QueryDataDto {
   category_id?: string;
   collection_id?: string;
+  user_id?: string;
   name?: { $regex: string; $options: string };
   isDeleted?: boolean;
   status?: STATUS;
