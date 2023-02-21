@@ -5,6 +5,7 @@ import { CategoryData } from '../categories/schema/category.schema';
 import { CollectionData } from '../collection/schema/collection.schema';
 import { BaseSchema } from '../common/base.schema';
 import { UserData } from '../user/schema/user.schema';
+import { STATUS } from 'src/components/enum';
 
 export type AssetDocument = AssetData & Document;
 
@@ -41,7 +42,7 @@ export class AssetData extends BaseSchema {
   status_ban: boolean;
 
   @Prop()
-  status: string;
+  status: STATUS;
 }
 export const AssetSchema =
   SchemaFactory.createForClass(AssetData).plugin(softDeletePlugin);
