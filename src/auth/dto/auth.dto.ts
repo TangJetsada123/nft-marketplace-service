@@ -7,6 +7,10 @@ export class addressDto {
 
 export class createUserDto {
   @ApiProperty()
+  readonly username: string;
+
+
+  @ApiProperty()
   readonly password: string;
 }
 

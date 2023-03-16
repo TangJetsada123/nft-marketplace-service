@@ -41,6 +41,7 @@ import { RealIP } from 'nestjs-real-ip';
 import { CurrentAdmin } from '../auth/decorator/admin.decorator';
 import { RolesGuard } from '../auth/guard/role.guard';
 import { Roles } from '../auth/decorator/roles.decorator';
+import { JwtService } from '@nestjs/jwt';
 
 @ApiTags('asset')
 @Controller('asset')
@@ -50,7 +51,8 @@ export class AssetController {
     private uploadService: UploadService,
     private emailService: EmailService,
     private userService: UserService,
-    private logService: LogService
+    private logService: LogService,
+    private jwtService: JwtService
   ) {}
 
   @ApiQuery({ name: 'type', enum: DATE })
@@ -120,7 +122,6 @@ export class AssetController {
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: CreateAssetDto
   ) {
-    console.log(file)
     const image = await this.uploadService.upload(file);
     dto.image = image;
     dto.status_ban === false;
@@ -156,13 +157,18 @@ export class AssetController {
     @Body() dto: BuyAssetDto
   ) {
     const checkConfirm = dto.confirm;
-    console.log(token)
     const data = {
       sell_status: true,
       status: STATUS.OWNED,
       user_id: token._id.toString(),
     };
+    const user = this.jwtService.verify(token)
+    const userData = await  this.userService.findById(user.sub)
+    const totalBalance = userData.total_balance
     if (checkConfirm === true) {
+      if(totalBalance < dto.price){
+        throw new Error(' Please Add funds to purchase');
+      }
       return await this.assetService.update(id, data);
     } else {
       throw new Error(' transaction is error');

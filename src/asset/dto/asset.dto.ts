@@ -61,6 +61,11 @@ export class BuyAssetDto {
   @ApiProperty()
   @IsNotEmpty()
   confirm: boolean;
+
+  @IsOptional()
+  @ApiProperty()
+  price?: number;
+
 }
 
 export class CreateAssetDto {

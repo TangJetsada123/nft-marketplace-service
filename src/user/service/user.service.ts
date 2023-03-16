@@ -39,8 +39,8 @@ export class UserService extends BaseService {
   }
 
   async findByAddress(address: string) {
-    console.log(await this.userModel.findOne({ address }))
-    return this.userModel.findOne({ address });
+    console.log(address)
+    return await this.userModel.find({ address});
   }
 
   findById(id: string) {

@@ -7,6 +7,9 @@ export type SignatureDocument = SignatureData & Document;
 @Schema({ timestamps: true })
 export class SignatureData extends BaseSchema {
   @Prop()
+  username: string;
+
+  @Prop()
   password: string;
 
   @Prop()

@@ -12,6 +12,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SignatureData, SignatureDocument } from '../schema/signature.schema';
 import { UserService } from 'src/user/service/user.service';
+import { HttpException, HttpStatus } from "@nestjs/common";
+import { UserDto } from 'src/user/dto/user.dto';
 
 
 @Injectable()
@@ -24,40 +26,40 @@ export class AuthService {
     this.Web3 = new Web3();
   }
 
-  async createUser(password: string) {
+  async createUser(username: string, password: string) {
     const wallet = this.Web3.eth.accounts.create()
-    const userAddress = wallet.address
     const userPriv = wallet.privateKey
-    const signature = this.Web3.eth.accounts.sign("hello", userPriv)
-    const data = {
-      address: userAddress,
-      privateKey: userPriv,
-      password: password,
-      signature: signature.signature
+    const message = username + password
+    const signature = this.Web3.eth.accounts.sign(message, userPriv)
+    const user = await this.userService.findAddressOrCreate(wallet.address)
+    const createUser = await this.signatureSchema.findOne({ username })
+    if (createUser) {
+      throw new HttpException('username is already', 403)
+    } else {
+      await this.signatureSchema.create({
+        username: username,
+        password: password,
+        privateKey: userPriv,
+        signature: signature.signature,
+        address: wallet.address
+      })
+      return this.jwtService.sign({
+        userId: user.id,
+        message: message,
+        signature: signature.signature
+      })
     }
-    const user = await this.userService.findAddressOrCreate(data.address)
-    console.log("user",user)
-    const addressId = user.address
-    this.signatureSchema.create({
-      address: addressId,
-      password: password,
-      user_id: user._id
-    })
-    return this.jwtService.sign({
-      sub: user._id,
-      address: addressId,
-      role: Role.USER
-    })
+
   }
 
-  async findAddress(password: createUserDto) {
-    console.log(await this.signatureSchema.findOne(password))
-    return this.signatureSchema.findOne(password)
+  async findAddress(username) {
+    return this.signatureSchema.findOne({ username })
   }
 
-  async recoverAddress(signature: signatureDto) {
+  async recoverAddress(signature) {
+    const message = signature.username + signature.password
     return this.Web3.eth.accounts.recover(
-      signature.message,
+      message,
       signature.signature
     );
   }
@@ -66,9 +68,10 @@ export class AuthService {
     return bcrypt.compare(password, hash);
   }
 
-  async generateJwtToken(user: UserData | AdminData, role: Role) {
+  async generateJwtToken(user, role: Role) {
     return {
       accessToken: this.jwtService.sign({
+        address: user.address,
         sub: user._id,
         role,
       }),
@@ -77,17 +80,5 @@ export class AuthService {
 
   decodeToken(token: string) {
     return this.jwtService.verify<{ token: TokenDto }>(token);
-  }
-
-  async generateTokenSignature(userInfo: signatureInfo) {
-    const userId = await this.userService.findByAddress(userInfo.address)   
-    return {
-      accessToken: this.jwtService.sign({
-        sub: userId._id,
-        address: userId.address,
-        sig: userInfo.signature,
-        role: Role.USER
-      })
-    }
   }
 }
