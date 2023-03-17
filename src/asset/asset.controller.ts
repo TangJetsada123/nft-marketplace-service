@@ -162,13 +162,16 @@ export class AssetController {
       status: STATUS.OWNED,
       user_id: token._id.toString(),
     };
-    const user = this.jwtService.verify(token)
-    const userData = await  this.userService.findById(user.sub)
+    const userData = await  this.userService.findById(token._id)
     const totalBalance = userData.total_balance
     if (checkConfirm === true) {
       if(totalBalance < dto.price){
         throw new Error(' Please Add funds to purchase');
       }
+      const total = totalBalance - dto.price
+      await this.userService.update(token._id,{
+          total_balance: total
+      })
       return await this.assetService.update(id, data);
     } else {
       throw new Error(' transaction is error');

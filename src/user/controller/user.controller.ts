@@ -79,6 +79,7 @@ export class UserController {
     return this.userService.findAddressOrCreate(address);
   }
 
+  
   @Get('/:id')
   getInfoById(@Param('id') id: string) {
     return this.userService.findById(id);

@@ -14,7 +14,7 @@ import { SignatureData, SignatureDocument } from '../schema/signature.schema';
 import { UserService } from 'src/user/service/user.service';
 import { HttpException, HttpStatus } from "@nestjs/common";
 import { UserDto } from 'src/user/dto/user.dto';
-
+import {Types} from 'mongoose'
 
 @Injectable()
 export class AuthService {
@@ -33,6 +33,7 @@ export class AuthService {
     const signature = this.Web3.eth.accounts.sign(message, userPriv)
     const user = await this.userService.findAddressOrCreate(wallet.address)
     const createUser = await this.signatureSchema.findOne({ username })
+    const role = Role.USER
     if (createUser) {
       throw new HttpException('username is already', 403)
     } else {
@@ -41,12 +42,15 @@ export class AuthService {
         password: password,
         privateKey: userPriv,
         signature: signature.signature,
-        address: wallet.address
+        address: wallet.address,
+        total_balance: 0
       })
       return this.jwtService.sign({
+        sub: wallet.address,
         userId: user.id,
         message: message,
-        signature: signature.signature
+        signature: signature.signature,
+        role
       })
     }
 
@@ -77,6 +81,8 @@ export class AuthService {
       }),
     };
   }
+
+  
 
   decodeToken(token: string) {
     return this.jwtService.verify<{ token: TokenDto }>(token);

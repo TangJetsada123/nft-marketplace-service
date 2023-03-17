@@ -62,6 +62,7 @@ export class BuyAssetDto {
   @IsNotEmpty()
   confirm: boolean;
 
+  
   @IsOptional()
   @ApiProperty()
   price?: number;

@@ -46,7 +46,6 @@ export class UserDto extends BaseSchema {
   )
   email_address?: string;
 
-  @IsOptional()
   @ApiProperty({ required: false })
   total_balance?: number;
 
