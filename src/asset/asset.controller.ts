@@ -53,7 +53,7 @@ export class AssetController {
     private userService: UserService,
     private logService: LogService,
     private jwtService: JwtService
-  ) {}
+  ) { }
 
   @ApiQuery({ name: 'type', enum: DATE })
   @Get('/dashboard')
@@ -77,12 +77,12 @@ export class AssetController {
   }
 
   @Get('/findUser/:_id')
-  async findByUserId(@Param('_id') userId:string){
+  async findByUserId(@Param('_id') userId: string) {
     return await this.assetService.findByUser(userId)
   }
 
   @Get('/findByColection/:_id')
-  async findCollectionId(@Param('_id') collectionId:string){
+  async findCollectionId(@Param('_id') collectionId: string) {
     return await this.assetService.findByCollection(collectionId)
   }
 
@@ -130,13 +130,13 @@ export class AssetController {
   }
 
   @Put('/update/:id')
-  update(@Param('id') id:string,@Body() dto: AssetDto){
-      return this.assetService.update(id,dto)
+  update(@Param('id') id: string, @Body() dto: AssetDto) {
+    return this.assetService.update(id, dto)
   }
 
   @ApiBearerAuth('access-token')
   @Roles(Role.USER)
-  @UseGuards(RolesGuard,JwtAuthGuard)
+  @UseGuards(RolesGuard, JwtAuthGuard)
   @Put('/sell/:id')
   async sell(@Param('id') id: string, @Body() dto: SellAssetDto) {
     const data = {
@@ -162,17 +162,21 @@ export class AssetController {
       status: STATUS.OWNED,
       user_id: token._id.toString(),
     };
-    const userData = await  this.userService.findById(token._id)
+    const userData = await this.userService.findById(token._id)
     const totalBalance = userData.total_balance
-    if (checkConfirm === true) {
-      if(totalBalance < dto.price){
-        throw new Error(' Please Add funds to purchase');
+    console.log(userData.total_balance)
+    console.log(dto.price)
+    const total = totalBalance - dto.price
+    console.log(total)
+    if (checkConfirm === true) {  
+        if(Number(userData.total_balance) >= Number(dto.price)){
+        await this.assetService.update(id, data);
+        return await this.userService.update(token._id, {
+          total_balance: Number(totalBalance - dto.price)
+        })
+      }else{
+        throw new Error(' please add more fund');
       }
-      const total = totalBalance - dto.price
-      await this.userService.update(token._id,{
-          total_balance: total
-      })
-      return await this.assetService.update(id, data);
     } else {
       throw new Error(' transaction is error');
     }

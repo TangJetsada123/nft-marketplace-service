@@ -38,6 +38,7 @@ export class UserDto extends BaseSchema {
   @ApiProperty({ required: false })
   bio?: string;
 
+  @IsOptional()
   @ApiProperty({ type: String })
   @IsEmail()
   @IsNotEmpty()
@@ -45,19 +46,24 @@ export class UserDto extends BaseSchema {
     '(?!test.@example.com|example@example.com|test@test.com)^[A-Za-z0-9._%+-]+@?(gmail|hotmail|live|outlook|).?(com|net)$'
   )
   email_address?: string;
-
+  
+  @IsOptional()
   @ApiProperty({ required: false })
   total_balance?: number;
-
+  
+  @IsOptional()
   @IsOptional()
   @ApiProperty({ required: false })
   address?: string;
-
+  
+  @IsOptional()
   @ApiProperty()
   isVerified: boolean;
-
+  
+  @IsOptional()
   @ApiProperty()
   status_ban: boolean;
+
 }
 
 export class UpdateUserDto extends PartialType(UserDto) {}

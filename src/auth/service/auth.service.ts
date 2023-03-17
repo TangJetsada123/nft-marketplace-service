@@ -46,8 +46,8 @@ export class AuthService {
         total_balance: 0
       })
       return this.jwtService.sign({
-        sub: wallet.address,
-        userId: user.id,
+        sub: user.id,
+        address: wallet.address,
         message: message,
         signature: signature.signature,
         role
